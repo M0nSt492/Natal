@@ -3,17 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <title>Flappy Connecta</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <style>
     body {
         margin: 0;
         overflow: hidden;
         background: linear-gradient(to bottom, #87CEEB, #fff);
         font-family: sans-serif;
+        touch-action: manipulation; /* evita zoom e scroll em toques */
     }
     canvas {
         display: block;
         margin: 0 auto;
         background: transparent;
+        touch-action: manipulation; /* também no canvas */
     }
     #score {
         position: absolute;
@@ -145,5 +148,3 @@ document.getElementById('startBtn').addEventListener('click', () => {
 
 </body>
 </html>
-
-
