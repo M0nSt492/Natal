@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Flappy Connecta</title>
-    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
+
 <style>
     body {
         margin: 0;
@@ -61,6 +62,7 @@
     }
 </style>
 </head>
+
 <body>
 
 <div id="menu">
@@ -83,6 +85,7 @@ window.addEventListener("resize", () => {
     canvas.height = window.innerHeight;
 });
 
+// Personagem (Pai Natal)
 const santa = new Image();
 santa.src = "d3842755-ae5d-474a-85be-5d4935244979.png";
 
@@ -92,6 +95,7 @@ let velocity = 0;
 let santaY = canvas.height / 2;
 let santaX = canvas.width * 0.15;
 
+// Canos
 let pipes = [];
 let pipeWidth = 80;
 let pipeGap = canvas.height * 0.30;
@@ -100,6 +104,7 @@ let score = 0;
 
 let lastTime = 0;
 
+// Neve
 const snowflakes = [];
 for (let i = 0; i < 40; i++) {
     snowflakes.push({
@@ -112,7 +117,6 @@ for (let i = 0; i < 40; i++) {
 
 function createPipe() {
     let topHeight = Math.random() * (canvas.height - pipeGap - 100) + 50;
-
     pipes.push({
         x: canvas.width,
         top: topHeight,
@@ -174,20 +178,24 @@ function update(timestamp) {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Neve
     ctx.fillStyle = "white";
     for (let flake of snowflakes) {
         ctx.beginPath();
         ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
         ctx.fill();
         flake.y += flake.d;
+
         if (flake.y > canvas.height) {
             flake.y = 0;
             flake.x = Math.random() * canvas.width;
         }
     }
 
+    // Pai Natal
     ctx.drawImage(santa, santaX, santaY, 50, 50);
 
+    // Canos
     ctx.fillStyle = "green";
     for (let p of pipes) {
         ctx.fillRect(p.x, 0, pipeWidth, p.top);
@@ -214,6 +222,11 @@ function draw() {
         ctx.fillText(label, 0, 0);
         ctx.restore();
     }
+}
+
+/* --------------------------------------------- */
+/*  EVENT LISTENERS — FORA DO DRAW()            */
+/* --------------------------------------------- */
 
 document.addEventListener("touchstart", (e) => {
     if (document.getElementById("menu").style.display === "none") {
@@ -229,17 +242,8 @@ document.getElementById("startBtn").addEventListener("click", () => {
     document.getElementById("menu").style.display = "none";
     requestAnimationFrame(update);
 });
+
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
