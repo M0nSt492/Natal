@@ -1,34 +1,82 @@
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="UTF-8">
-<title>Simulador de Apagar Ficheiros Críticos</title>
-<style>
-body { font-family: Arial, sans-serif; text-align: center; padding-top: 80px; }
-button {
-  font-size: 2rem; padding: 20px 40px; border-radius: 12px;
-  border: none; cursor: pointer; color: white;
-  background: red; animation: blink 1s infinite;
-}
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0.3; }
-  100% { opacity: 1; }
-}
-#msg { margin-top: 40px; font-size: 1.8rem; }
-</style>
+  <meta charset="UTF-8">
+  <title>Terminal de Operações Avançadas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+      color: white;
+      text-shadow: 0 0 8px black;
+    }
+
+    video#bgVideo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    .content {
+      position: relative;
+      z-index: 10;
+      padding-top: 80px;
+    }
+
+    button {
+      font-size: 2rem;
+      padding: 20px 40px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      color: white;
+      background: red;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+
+    #msg {
+      margin-top: 40px;
+      font-size: 1.8rem;
+    }
+  </style>
 </head>
 <body>
-<h1>⚠️ Simulador de Apagar Ficheiros Críticos ⚠️</h1>
-<button onclick="clicked()">NÃO CARREGAR AQUI</button>
-<div id="msg"></div>
 
-<script>
-function clicked() {
-    document.getElementById('msg').innerHTML =
-        "Parabéns. Resolveste um ticket! 🎉";
-}
-</script>
+  <video id="bgVideo" autoplay muted loop>
+    <source src="13622517_1920_1080_30fps.mp4" type="video/mp4">
+    O teu navegador não suporta vídeos de fundo.
+  </video>
+
+  <div class="content">
+    <h1>⚠️ Terminal de Operações Avançadas ⚠️</h1>
+    <button onclick="clicked()">NÃO CARREGAR AQUI</button>
+    <div id="msg"></div>
+  </div>
+
+  <script>
+    function clicked() {
+      // Mostra a mensagem
+      document.getElementById('msg').innerHTML =
+        "Boa!! Conseguiste salvar a Connecta! 🎉";
+
+      // Pausa o vídeo de fundo
+      const video = document.getElementById('bgVideo');
+      video.pause();
+    }
+  </script>
+
 </body>
 </html>
