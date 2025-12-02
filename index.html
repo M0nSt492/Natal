@@ -56,7 +56,7 @@
 <body>
 
 <div id="menu">
-    <h1>Flappy Connecta</h1>
+    <h1 style="font-family: 'Georgia', serif; color: #b30000; text-shadow: 4px 4px #fff;">Flappy Connecta</h1>
     <button id="startBtn">Jogar</button>
 </div>
 
@@ -79,7 +79,7 @@ const santa = new Image();
 santa.src = "d3842755-ae5d-474a-85be-5d4935244979.png";
 
 let gravity = 0.4;
-let lift = -5;
+let lift = -7;
 let velocity = 0;
 let santaY = canvas.height / 2;
 let santaX = canvas.width * 0.15;
@@ -184,8 +184,28 @@ function draw() {
     for (let p of pipes) {
         ctx.fillRect(p.x, 0, pipeWidth, p.top);
         ctx.fillRect(p.x, p.bottom, pipeWidth, canvas.height - p.bottom);
+
+        const labels = ["CONNECTA","WIZINK","EDP","CETELEM","SONAE","SISTEMAS DE INFORMAÇÃO","RECURSOS HUMANOS"];
+        const label = labels[Math.floor(Math.random() * labels.length)];
+
+        ctx.save();
+        ctx.translate(p.x + pipeWidth / 2, p.top / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillStyle = "#b30000";
+        ctx.font = "bold 28px serif";
+        ctx.textAlign = "center";
+        ctx.fillText(label, 0, 0);
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(p.x + pipeWidth / 2, p.bottom + (canvas.height - p.bottom) / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillStyle = "#b30000";
+        ctx.font = "bold 28px serif";
+        ctx.textAlign = "center";
+        ctx.fillText(label, 0, 0);
+        ctx.restore();
     }
-}
 
 document.addEventListener("touchstart", (e) => {
     if (document.getElementById("menu").style.display === "none") {
@@ -205,6 +225,7 @@ document.getElementById("startBtn").addEventListener("click", () => {
 
 </body>
 </html>
+
 
 
 
