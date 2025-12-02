@@ -65,7 +65,7 @@ canvas.height = height;
 let player = {x: 100, y: height/2, w: 44, h: 44, vy:0, rotation:0};
 let pipes = [];
 let gravity = 0.55;
-let flapStrength = 1;
+let flapStrength = -10;
 let pipeGap = 150;
 let pipeWidth = 60;
 let pipeSpeed = 3;
@@ -234,6 +234,7 @@ loop(performance.now());
 
 </body>
 </html>
+
 
 
 
