@@ -10,13 +10,13 @@
         overflow: hidden;
         background: linear-gradient(to bottom, #87CEEB, #fff);
         font-family: sans-serif;
-        touch-action: manipulation; /* evita zoom e scroll em toques */
+        touch-action: manipulation;
     }
     canvas {
         display: block;
         margin: 0 auto;
         background: transparent;
-        touch-action: manipulation; /* também no canvas */
+        touch-action: manipulation;
     }
     #score {
         position: absolute;
@@ -61,8 +61,8 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-let gravity = 0.6;
-let lift = -10;
+let gravity = 0.4;   // mais suave
+let lift = -7;       // salto mais curto
 let velocity = 0;
 let santaY = canvas.height/2;
 let santaX = 50;
@@ -98,7 +98,7 @@ function update() {
     if (frame % 90 === 0) createPipe();
 
     for (let i = pipes.length - 1; i >= 0; i--) {
-        pipes[i].x -= 2;
+        pipes[i].x -= 1.8;  // ligeiramente mais lento
 
         if (pipes[i].x + pipeWidth < 0) {
             pipes.splice(i, 1);
@@ -135,11 +135,12 @@ function flap() {
     velocity = lift;
 }
 
-// Controles: toque no ecrã ou clique
+// Controles
 canvas.addEventListener('touchstart', flap);
 canvas.addEventListener('mousedown', flap);
 document.addEventListener('keydown', flap); // opcional para PC
 
+// Iniciar jogo
 document.getElementById('startBtn').addEventListener('click', () => {
     document.getElementById('menu').style.display = 'none';
     update();
