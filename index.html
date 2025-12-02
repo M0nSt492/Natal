@@ -1,0 +1,34 @@
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Simulador de Apagar Ficheiros Críticos</title>
+<style>
+body { font-family: Arial, sans-serif; text-align: center; padding-top: 80px; }
+button {
+  font-size: 2rem; padding: 20px 40px; border-radius: 12px;
+  border: none; cursor: pointer; color: white;
+  background: red; animation: blink 1s infinite;
+}
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+#msg { margin-top: 40px; font-size: 1.8rem; }
+</style>
+</head>
+<body>
+<h1>⚠️ Simulador de Apagar Ficheiros Críticos ⚠️</h1>
+<button onclick="clicked()">NÃO CARREGAR AQUI</button>
+<div id="msg"></div>
+
+<script>
+function clicked() {
+    document.getElementById('msg').innerHTML =
+        "Parabéns. Salvaste uma venda! 🎉";
+}
+</script>
+</body>
+</html>
