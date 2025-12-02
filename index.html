@@ -12,6 +12,7 @@
       overflow: hidden;
       color: white;
       text-shadow: 0 0 8px black;
+      background-color: black;
     }
 
     video#bgVideo {
@@ -51,13 +52,25 @@
       margin-top: 40px;
       font-size: 1.8rem;
     }
+
+    /* Fallback para mobile: esconde o vídeo e mostra imagem */
+    @media (max-width: 768px) {
+      video#bgVideo {
+        display: none;
+      }
+      body {
+        background-image: url('imagem-fallback.jpg'); /* substitui com a tua imagem */
+        background-size: cover;
+        background-position: center;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <video id="bgVideo" autoplay muted loop>
+  <video id="bgVideo" autoplay muted loop playsinline>
     <source src="13622517_1920_1080_30fps.mp4" type="video/mp4">
-    O teu navegador não suporta vídeos de fundo.
+    
   </video>
 
   <div class="content">
@@ -68,13 +81,15 @@
 
   <script>
     function clicked() {
-      // Mostra a mensagem
-      document.getElementById('msg').innerHTML =
-        "Boa!! Conseguiste salvar a Connecta! 🎉";
-
-      // Pausa o vídeo de fundo
       const video = document.getElementById('bgVideo');
-      video.pause();
+
+      // Pausa o vídeo (se estiver a tocar)
+      if (!video.paused) {
+        video.pause();
+      }
+
+      document.getElementById('msg').innerHTML =
+        "Parabéns. Salvaste uma venda! 🎉";
     }
   </script>
 
