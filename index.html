@@ -42,21 +42,6 @@
         cursor: pointer;
         box-shadow: 3px 3px 6px #000;
     }
-    #jumpBtn {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 32px;
-        padding: 20px 40px;
-        background-color: red;
-        color: white;
-        border: none;
-        border-radius: 12px;
-        cursor: pointer;
-        z-index: 1000;
-        display: none;
-    }
 </style>
 </head>
 <body>
@@ -68,12 +53,10 @@
 
 <canvas id="gameCanvas" width="400" height="600"></canvas>
 <div id="score">0</div>
-<button id="jumpBtn">Saltar</button>
 
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const jumpBtn = document.getElementById('jumpBtn');
 
 let gravity = 0.6;
 let lift = -10;
@@ -87,13 +70,11 @@ let pipeGap = 150;
 let frame = 0;
 let score = 0;
 
-// Criar pipes aleatórios
 function createPipe() {
     const topHeight = Math.random() * (canvas.height - pipeGap - 50) + 50;
     pipes.push({x: canvas.width, top: topHeight, bottom: topHeight + pipeGap});
 }
 
-// Verificar colisão
 function checkCollision(pipe) {
     if (santaX + 40 > pipe.x && santaX < pipe.x + pipeWidth &&
         (santaY < pipe.top || santaY + 40 > pipe.bottom)) return true;
@@ -101,13 +82,11 @@ function checkCollision(pipe) {
     return false;
 }
 
-// Game over
 function gameOver() {
     alert("Game Over! Pontuação: " + score);
     location.reload();
 }
 
-// Atualizar jogo
 function update() {
     frame++;
     velocity += gravity;
@@ -134,7 +113,6 @@ function update() {
     requestAnimationFrame(update);
 }
 
-// Desenhar
 function draw() {
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
@@ -150,25 +128,22 @@ function draw() {
     }
 }
 
-// Função flap
 function flap() {
     velocity = lift;
 }
 
-// Listeners
-document.addEventListener('keydown', flap);
+// Controles: toque no ecrã ou clique
 canvas.addEventListener('touchstart', flap);
-jumpBtn.addEventListener('click', flap);
-jumpBtn.addEventListener('touchstart', flap);
+canvas.addEventListener('mousedown', flap);
+document.addEventListener('keydown', flap); // opcional para PC
 
-// Iniciar jogo
 document.getElementById('startBtn').addEventListener('click', () => {
     document.getElementById('menu').style.display = 'none';
-    jumpBtn.style.display = 'block';
     update();
 });
 </script>
 
 </body>
 </html>
+
 
