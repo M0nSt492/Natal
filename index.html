@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Flappy Connecta Mobile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<style>
+    body {margin:0;overflow:hidden;background:linear-gradient(to bottom,#87CEEB,#fff);}
+    canvas {display:block;margin:0 auto;}
+    #score {position:absolute;top:20px;left:50%;transform:translateX(-50%);font-size:6vw;font-weight:bold;color:red;text-shadow:2px 2px #fff;}
+</style>
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+<div id="score">0</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Flappy Connecta Mobile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<style>
+    body {margin:0;overflow:hidden;background:linear-gradient(to bottom,#87CEEB,#fff);}
+    canvas {display:block;margin:0 auto;}
+    #score {position:absolute;top:20px;left:50%;transform:translateX(-50%);font-size:6vw;font-weight:bold;color:red;text-shadow:2px 2px #fff;}
+</style>
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+<div id="score">0</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const santa = new Image();
+santa.src = 'd3842755-ae5d-474a-85be-5d4935244979.png';
+
+let gravity=0.6, lift=-10, velocity=0, santaY=canvas.height/2, santaX=canvas.width*0.1;
+let pipes=[], pipeWidth=canvas.width*0.15, pipeGap=canvas.height*0.25, frame=0, score=0;
+const pipeNamesOriginal=["WIZINK","EDP","CETELEM","SONAE","RECURSOS HUMANOS","SISTEMAS DE INFORMAÇÃO"];
+let pipeNames=[...pipeNamesOriginal];
+const snowflakes=[];
+for(let i=0;i<100;i++) snowflakes.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*3+1,d:Math.random()*2});
+
+function createPipe(){
+    let topHeight=Math.random()*(canvas.height-pipeGap-50)+50;
+    let bottomY=topHeight+pipeGap;
+    if(pipeNames.length===0) pipeNames=[...pipeNamesOriginal];
+    const nameIndex=Math.floor(Math.random()*pipeNames.length);
+    const name=pipeNames.splice(nameIndex,1)[0];
+    pipes.push({x:canvas.width,top:topHeight,bottom:bottomY,name:name});
+}
+
+function checkCollision(pipe){
+    if(santaX+canvas.width*0.1>pipe.x && santaX<pipe.x+pipeWidth && (santaY<pipe.top || santaY+canvas.width*0.1>pipe.bottom)) return true;
+    if(santaY+canvas.width*0.1>canvas.height || santaY<0) return true;
+    return false;
+}
+
+function gameOver(){alert("Game Over! Pontuação: "+score); location.reload();}
+
+function update(){
+    frame++;
+    velocity+=gravity;
+    santaY+=velocity;
+
+    if(frame%90===0) createPipe();
+
+    for(let i=pipes.length-1;i>=0;i--){
+        pipes[i].x-=canvas.width*0.004;
+        if(pipes[i].x+pipeWidth<0){pipes.splice(i,1); score++; document.getElementById('score').innerText=score;}
+        if(checkCollision(pipes[i])){gameOver(); return;}
+    }
+
+    draw();
+    requestAnimationFrame(update);
+}
+
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle='white';
+    ctx.beginPath();
+    for(let f of snowflakes){ctx.moveTo(f.x,f.y);ctx.arc(f.x,f.y,f.r,0,Math.PI*2);}
+    ctx.fill();
+
+    for(let f of snowflakes){f.y+=f.d;if(f.y>canvas.height){f.y=0;f.x=Math.random()*canvas.width;}}
+
+    ctx.save();
+    ctx.translate(santaX+canvas.width*0.05,santaY+canvas.width*0.05);
+    let angle=velocity/10; angle=Math.max(-0.5,Math.min(0.5,angle));
+    ctx.rotate(angle);
+    ctx.drawImage(santa,-canvas.width*0.05,-canvas.width*0.05,canvas.width*0.1,canvas.width*0.1);
+    ctx.restore();
+
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    for(let p of pipes){
+        ctx.fillStyle='green'; ctx.fillRect(p.x,0,pipeWidth,p.top);
+        ctx.fillStyle='red'; ctx.fillRect(p.x,p.bottom,pipeWidth,canvas.height-p.bottom);
+
+        ctx.fillStyle='white';
+        let rectHeight=Math.max(p.top,canvas.height-p.bottom);
+        let rectTop=p.top>=canvas.height-p.bottom?0:p.bottom;
+        let fontSize=Math.min(16,rectHeight/(p.name.length+1));
+        fontSize=fontSize*(canvas.width/400); ctx.font=`${fontSize}px Arial`;
+        let startY=rectTop+(rectHeight-fontSize*p.name.length)/2+fontSize/2;
+        for(let i=0;i<p.name.length;i++) ctx.fillText(p.name[i],p.x+pipeWidth/2,startY+i*fontSize);
+    }
+}
+
+function flap(){velocity=lift;}
+canvas.addEventListener('touchstart',flap);
+canvas.addEventListener('mousedown',flap);
+
+// Espera por interação do utilizador para iniciar o jogo
+function startGame(){
+    canvas.removeEventListener('touchstart',startGame);
+    canvas.removeEventListener('mousedown',startGame);
+    if(santa.complete){update();} else {santa.onload=update;}
+}
+
+canvas.addEventListener('touchstart',startGame);
+canvas.addEventListener('mousedown',startGame);
+</script>
+
+</body>
+</html>
