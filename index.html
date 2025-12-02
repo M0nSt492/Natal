@@ -2,8 +2,7 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Flappy Connecta</title>
 
 <style>
@@ -68,7 +67,6 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Ajustar automaticamente ao tamanho do ecrã
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -80,7 +78,6 @@ window.addEventListener("resize", () => {
 const santa = new Image();
 santa.src = "d3842755-ae5d-474a-85be-5d4935244979.png";
 
-// Física adaptada ao telemóvel
 let gravity = 0.4;
 let lift = -7;
 let velocity = 0;
@@ -93,7 +90,8 @@ let pipeGap = canvas.height * 0.30;
 let frame = 0;
 let score = 0;
 
-// Neve optimizada
+let lastTime = 0;
+
 const snowflakes = [];
 for (let i = 0; i < 40; i++) {
     snowflakes.push({
@@ -135,7 +133,11 @@ function gameOver() {
     `;
 }
 
-function update() {
+function update(timestamp) {
+    if (!lastTime) lastTime = timestamp;
+    const delta = (timestamp - lastTime) / 16.67;
+    lastTime = timestamp;
+
     frame++;
     velocity += gravity;
     santaY += velocity;
@@ -143,7 +145,7 @@ function update() {
     if (frame % 100 === 0) createPipe();
 
     for (let i = pipes.length - 1; i >= 0; i--) {
-        pipes[i].x -= 5;
+        pipes[i].x -= 3 * delta;
 
         if (pipes[i].x + pipeWidth < 0) {
             pipes.splice(i, 1);
@@ -164,7 +166,6 @@ function update() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Neve
     ctx.fillStyle = "white";
     for (let flake of snowflakes) {
         ctx.beginPath();
@@ -177,10 +178,8 @@ function draw() {
         }
     }
 
-    // Pai Natal
     ctx.drawImage(santa, santaX, santaY, 50, 50);
 
-    // Pipes
     ctx.fillStyle = "green";
     for (let p of pipes) {
         ctx.fillRect(p.x, 0, pipeWidth, p.top);
@@ -188,29 +187,25 @@ function draw() {
     }
 }
 
-// Toque para saltar (AGORA CORRECTO)
 document.addEventListener("touchstart", (e) => {
-    // Apenas funciona se o menu estiver escondido
     if (document.getElementById("menu").style.display === "none") {
         e.preventDefault();
         velocity = lift;
     }
 }, { passive: false });
 
-// Clique para PC
 document.addEventListener("mousedown", () => velocity = lift);
-
-// Teclado
 document.addEventListener("keydown", () => velocity = lift);
 
-// Iniciar jogo
 document.getElementById("startBtn").addEventListener("click", () => {
     document.getElementById("menu").style.display = "none";
-    update();
+    requestAnimationFrame(update);
 });
 </script>
 
 </body>
 </html>
+
+
 
 
