@@ -2,21 +2,17 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Flappy Connecta</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
 <style>
     body {
         margin: 0;
         overflow: hidden;
+        touch-action: manipulation; /* evita zoom no telemóvel */
         background: linear-gradient(to bottom, #87CEEB, #fff);
-        font-family: sans-serif;
-        touch-action: manipulation;
-    }
-    canvas {
-        display: block;
-        margin: 0 auto;
-        background: transparent;
-        touch-action: manipulation;
+        font-family: Arial, sans-serif;
     }
     #score {
         position: absolute;
@@ -30,10 +26,21 @@
     }
     #menu {
         position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         background: rgba(0,0,0,0.5);
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        color: white; text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    #menu h1 {
+        font-size: 64px;
+        margin-bottom: 40px;
+        text-shadow: 3px 3px green;
     }
     #menu button {
         font-size: 32px;
@@ -54,40 +61,78 @@
     <button id="startBtn">Jogar</button>
 </div>
 
-<canvas id="gameCanvas" width="400" height="600"></canvas>
+<canvas id="gameCanvas"></canvas>
 <div id="score">0</div>
 
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-let gravity = 0.4;   // mais suave
-let lift = -7;       // salto mais curto
+// Ajustar ao tamanho do ecrã
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+const santa = new Image();
+santa.src = "d3842755-ae5d-474a-85be-5d4935244979.png";
+
+// Física optimizada para telemóvel
+let gravity = 0.4;
+let lift = -7;
 let velocity = 0;
-let santaY = canvas.height/2;
-let santaX = 50;
+let santaY = canvas.height / 2;
+let santaX = canvas.width * 0.15;
 
 let pipes = [];
-let pipeWidth = 60;
-let pipeGap = 150;
+let pipeWidth = 80;
+let pipeGap = canvas.height * 0.30;
 let frame = 0;
 let score = 0;
 
-function createPipe() {
-    const topHeight = Math.random() * (canvas.height - pipeGap - 50) + 50;
-    pipes.push({x: canvas.width, top: topHeight, bottom: topHeight + pipeGap});
+// Menos neve = melhor FPS no telemóvel
+const snowflakes = [];
+for (let i = 0; i < 40; i++) {
+    snowflakes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 1,
+        d: Math.random() * 1 + 0.5
+    });
 }
 
-function checkCollision(pipe) {
-    if (santaX + 40 > pipe.x && santaX < pipe.x + pipeWidth &&
-        (santaY < pipe.top || santaY + 40 > pipe.bottom)) return true;
+function createPipe() {
+    let topHeight = Math.random() * (canvas.height - pipeGap - 100) + 50;
+
+    pipes.push({
+        x: canvas.width,
+        top: topHeight,
+        bottom: topHeight + pipeGap
+    });
+}
+
+function checkCollision(p) {
+    if (
+        santaX + 40 > p.x && santaX < p.x + pipeWidth &&
+        (santaY < p.top || santaY + 40 > p.bottom)
+    ) return true;
+
     if (santaY + 40 > canvas.height || santaY < 0) return true;
+
     return false;
 }
 
 function gameOver() {
-    alert("Game Over! Pontuação: " + score);
-    location.reload();
+    const menu = document.getElementById("menu");
+    menu.style.display = "flex";
+    menu.innerHTML = `
+        <h1>Game Over!</h1>
+        <p>Pontuação: ${score}</p>
+        <button onclick="location.reload()">Jogar novamente</button>
+    `;
 }
 
 function update() {
@@ -95,15 +140,15 @@ function update() {
     velocity += gravity;
     santaY += velocity;
 
-    if (frame % 90 === 0) createPipe();
+    if (frame % 100 === 0) createPipe();
 
     for (let i = pipes.length - 1; i >= 0; i--) {
-        pipes[i].x -= 1.8;  // ligeiramente mais lento
+        pipes[i].x -= 3;
 
         if (pipes[i].x + pipeWidth < 0) {
             pipes.splice(i, 1);
             score++;
-            document.getElementById('score').innerText = score;
+            document.getElementById("score").innerText = score;
         }
 
         if (checkCollision(pipes[i])) {
@@ -117,32 +162,47 @@ function update() {
 }
 
 function draw() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Neve
+    ctx.fillStyle = "white";
+    for (let flake of snowflakes) {
+        ctx.beginPath();
+        ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
+        ctx.fill();
+        flake.y += flake.d;
+        if (flake.y > canvas.height) {
+            flake.y = 0;
+            flake.x = Math.random() * canvas.width;
+        }
+    }
 
     // Pai Natal
-    ctx.fillStyle = 'red';
-    ctx.fillRect(santaX, santaY, 40, 40);
+    ctx.drawImage(santa, santaX, santaY, 50, 50);
 
     // Pipes
-    ctx.fillStyle = 'green';
-    for (let pipe of pipes) {
-        ctx.fillRect(pipe.x, 0, pipeWidth, pipe.top);
-        ctx.fillRect(pipe.x, pipe.bottom, pipeWidth, canvas.height - pipe.bottom);
+    ctx.fillStyle = "green";
+    for (let p of pipes) {
+        ctx.fillRect(p.x, 0, pipeWidth, p.top);
+        ctx.fillRect(p.x, p.bottom, pipeWidth, canvas.height - p.bottom);
     }
 }
 
-function flap() {
+// Controlo por toque
+document.addEventListener("touchstart", (e) => {
+    e.preventDefault();
     velocity = lift;
-}
+}, { passive: false });
 
-// Controles
-canvas.addEventListener('touchstart', flap);
-canvas.addEventListener('mousedown', flap);
-document.addEventListener('keydown', flap); // opcional para PC
+// Controlo por rato/PC
+document.addEventListener("mousedown", () => velocity = lift);
+
+// Teclado
+document.addEventListener("keydown", () => velocity = lift);
 
 // Iniciar jogo
-document.getElementById('startBtn').addEventListener('click', () => {
-    document.getElementById('menu').style.display = 'none';
+document.getElementById("startBtn").addEventListener("click", () => {
+    document.getElementById("menu").style.display = "none";
     update();
 });
 </script>
