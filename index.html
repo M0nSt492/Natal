@@ -1,1 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flappy Connecta</title>
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    font-family: sans-serif;
+  }
+  canvas {
+    display: block;
+    background: none; /* fundo azul removido */
+  }
+  #overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: #fff;
+    text-align: center;
+    pointer-events: none;
+  }
+  #overlay button {
+    pointer-events: auto;
+    padding: 10px 20px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.8);
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="game"></canvas>
+<div id="overlay">
+  <h1>Flappy Connecta</h1>
+  <p>Toca no ecrã para jogar — O Pai Natal está à espera!</p>
+  <button id="startBtn">Começar</button>
+</div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const overlay = document.getElementById('overlay');
+const startBtn = document.getElementById('startBtn');
+
+let width = 480;
+let height = 640;
+canvas.width = width;
+canvas.height = height;
+
+// imagens
+const santaImg = new Image();
+santaImg.src = 'santa.png'; // jogador
+
+const bgImg = new Image();
+bgImg.src = 'menu.jpg'; // fundo único
+
+// jogador e física
+let player = {x: 100, y: height/2, w: 44, h: 44, vy:0, rotation:0};
+let pipes = [];
+let gravity = 0.70;
+let flapStrength = -5;
+let pipeGap = 150;
+let pipeWidth = 60;
+let pipeSpeed = 3;
+let pipeInterval = 1400;
+let lastPipeTime = 0;
+let score = 0;
+let best = Number(localStorage.getItem('flappy_connecta_best') || 0);
+let gameOver = false;
+let started = false;
+
+function resetGame() {
+  pipes = [];
+  player.y = height/2;
+  player.vy = 0;
+  player.rotation = 0;
+  score = 0;
+  gameOver = false;
+  started = false;
+
+  overlay.style.display = 'flex';
+  overlay.innerHTML = `
+    <h1>Flappy Connecta</h1>
+    <p>Toque no ecrã para jogar — O Pai Natal está à espera!</p>
+    <button id="startBtn">Começar</button>
+  `;
+  document.getElementById('startBtn').addEventListener('click', flap);
+}
+
+function spawnPipe() {
+  const minTop = 60;
+  const maxTop = height - pipeGap - 60;
+  const top = Math.floor(Math.random() * (maxTop - minTop + 1)) + minTop;
+  pipes.push({x: width + 10, top: top, scored:false});
+}
+
+function flap() {
+  if(gameOver) {
+    resetGame();
+    return;
+  }
+  player.vy = flapStrength;
+  player.rotation = -0.6;
+  started = true;
+  overlay.style.display = 'none';
+}
+
+function rectsIntersect(a,b) {
+  return !(a.x + a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h);
+}
+
+function update(dt) {
+  if(!started || gameOver) return;
+
+  player.vy += gravity;
+  player.y += player.vy * (dt/16.6667);
+  player.rotation = Math.max(Math.min(player.vy / 12, 1.2), -1.2);
+
+  if(performance.now() - lastPipeTime > pipeInterval) {
+    spawnPipe();
+    lastPipeTime = performance.now();
+  }
+
+  for(let i=pipes.length-1;i>=0;i--){
+    let p = pipes[i];
+    p.x -= pipeSpeed * (dt/16.6667);
+
+    if(!p.scored && p.x + pipeWidth < player.x){
+      p.scored = true;
+      score++;
+      if(score>best){ best = score; localStorage.setItem('flappy_connecta_best', best);}
+    }
+
+    if(p.x + pipeWidth < -20) pipes.splice(i,1);
+
+    const playerRect = {x: player.x - player.w/2, y: player.y - player.h/2, w: player.w, h: player.h};
+    const pipeTopRect = {x: p.x, y:0, w:pipeWidth, h:p.top};
+    const pipeBottomRect = {x:p.x, y:p.top+pipeGap, w:pipeWidth, h:height-(p.top+pipeGap)};
+
+    if(rectsIntersect(playerRect, pipeTopRect) || rectsIntersect(playerRect, pipeBottomRect)){
+      gameOver = true;
+      overlay.style.display = 'flex';
+      overlay.innerHTML = `
+        <h1>Distribuiste ${score} presente${score !== 1 ? 's' : ''} 🎁</h1>
+        <button id="startBtn">Tentar novamente</button>
+      `;
+      document.getElementById('startBtn').addEventListener('click', flap);
+    }
+  }
+
+  const halfH = player.h/2;
+  if(player.y + halfH > height) { player.y = height-halfH; gameOver=true; overlay.style.display='flex'; }
+  if(player.y - halfH < 0) { player.y = halfH; player.vy=0; }
+}
+
+function drawPipes() {
+  for(let p of pipes){
+    ctx.fillStyle = "#B22222";
+    ctx.fillRect(p.x, p.top + pipeGap, pipeWidth, height-(p.top+pipeGap));
+    ctx.fillStyle = "#8B0000";
+    ctx.fillRect(p.x, p.top + pipeGap, pipeWidth, 10);
+    ctx.fillStyle = "#B22222";
+    ctx.fillRect(p.x, 0, pipeWidth, p.top);
+    ctx.fillStyle = "#8B0000";
+    ctx.fillRect(p.x, p.top-10, pipeWidth, 10);
+  }
+}
+
+function draw() {
+  // desenhar apenas a imagem de fundo
+  if(bgImg.complete && bgImg.naturalWidth > 0){
+    ctx.drawImage(bgImg, 0, 0, width, height);
+  }
+
+  drawPipes();
+
+  // jogador
+  ctx.save();
+  ctx.translate(player.x,player.y);
+  ctx.rotate(player.rotation);
+  if(santaImg.complete && santaImg.naturalWidth > 0){
+    ctx.drawImage(santaImg,-player.w/2,-player.h/2,player.w,player.h);
+  } else {
+    ctx.fillStyle = "red";
+    ctx.beginPath();
+    ctx.arc(0,0,player.w/2,0,Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // UI
+  ctx.fillStyle = "#fff";
+  ctx.font = "28px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(`Score: ${score}`, width/2, 48);
+  ctx.font = "16px sans-serif";
+  ctx.fillText(`Best: ${best}`, width-60, 32);
+}
+
+let lastTime = performance.now();
+function loop(now){
+  const dt = now - lastTime;
+  lastTime = now;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+startBtn.addEventListener('click', flap);
+canvas.addEventListener('mousedown', flap);
+canvas.addEventListener('touchstart', flap);
+
+loop(performance.now());
+</script>
+
+</body>
+</html>
+
 
