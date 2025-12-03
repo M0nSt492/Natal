@@ -11,7 +11,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 200vh;
     overflow: hidden;
     font-family: sans-serif;
   }
@@ -20,16 +20,21 @@
     background: none; /* fundo azul removido */
   }
   #overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    color: #fff;
-    text-align: center;
-    pointer-events: none;
+ 
+  position: absolute;
+  top: 20%; /* desloca o menu para cima */
+  left: 0;
+  width: 100%;
+  height: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* elementos começam a partir do topo */
+  flex-direction: column;
+  color: #fff;
+  text-align: center;
+  pointer-events: none;
+
+
   }
   #overlay button {
     pointer-events: auto;
@@ -230,5 +235,6 @@ loop(performance.now());
 
 </body>
 </html>
+
 
 
