@@ -80,6 +80,36 @@ const santaImg = new Image();
 santaImg.src = 'santa.png'; // substitui por uma imagem PNG do Pai Natal
 const backgroundImg = new Image();
 backgroundImg.src = 'connecta.png'; // Fundo Connecta
+// Fundo do MENU (imagem que acabaste de criar)
+const menuBackground = new Image();
+menuBackground.src = 'menu_fundo.png';
+
+// Fundo do JOGO (podes substituir depois por outra imagem)
+const gameBackground = new Image();
+gameBackground.src = 'connecta.png';
+  function draw() {
+
+    // --- Fundo do MENU ---
+    if (!started || gameOver) {
+        if (menuBackground.complete && menuBackground.naturalWidth > 0) {
+            ctx.drawImage(menuBackground, 0, 0, width, height);
+        } else {
+            ctx.fillStyle = "#003"; 
+            ctx.fillRect(0, 0, width, height);
+        }
+    }
+
+    // --- Fundo do JOGO ---
+    else {
+        if (gameBackground.complete && gameBackground.naturalWidth > 0) {
+            ctx.drawImage(gameBackground, 0, 0, width, height);
+        } else {
+            ctx.fillStyle = "#7ec8f5";
+            ctx.fillRect(0, 0, width, height);
+        }
+    }
+
+
 
 function resetGame() {
   pipes = [];
@@ -234,6 +264,7 @@ loop(performance.now());
 
 </body>
 </html>
+
 
 
 
