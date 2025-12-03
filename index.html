@@ -7,17 +7,17 @@
 <style>
   body {
     margin: 0;
-    background: linear-gradient(#7ec8f5, #bde6ff);
+    background: #000;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100;
+    height: 100vh;
     overflow: hidden;
     font-family: sans-serif;
   }
   canvas {
     display: block;
-    background: #7ec8f5;
+    background: none; /* fundo azul removido */
   }
   #overlay {
     position: absolute;
@@ -62,6 +62,14 @@ let height = 640;
 canvas.width = width;
 canvas.height = height;
 
+// imagens
+const santaImg = new Image();
+santaImg.src = 'santa.png'; // jogador
+
+const bgImg = new Image();
+bgImg.src = 'background.png'; // fundo único
+
+// jogador e física
 let player = {x: 100, y: height/2, w: 44, h: 44, vy:0, rotation:0};
 let pipes = [];
 let gravity = 0.70;
@@ -76,10 +84,6 @@ let best = Number(localStorage.getItem('flappy_connecta_best') || 0);
 let gameOver = false;
 let started = false;
 
-const santaImg = new Image();
-santaImg.src = 'santa.png'; // substitui por uma imagem PNG do Pai Natal
-
-
 function resetGame() {
   pipes = [];
   player.y = height/2;
@@ -88,6 +92,7 @@ function resetGame() {
   score = 0;
   gameOver = false;
   started = false;
+
   overlay.style.display = 'flex';
   overlay.innerHTML = `
     <h1>Flappy Connecta</h1>
@@ -143,10 +148,10 @@ function update(dt) {
 
     if(p.x + pipeWidth < -20) pipes.splice(i,1);
 
-    // colisoes
     const playerRect = {x: player.x - player.w/2, y: player.y - player.h/2, w: player.w, h: player.h};
     const pipeTopRect = {x: p.x, y:0, w:pipeWidth, h:p.top};
     const pipeBottomRect = {x:p.x, y:p.top+pipeGap, w:pipeWidth, h:height-(p.top+pipeGap)};
+
     if(rectsIntersect(playerRect, pipeTopRect) || rectsIntersect(playerRect, pipeBottomRect)){
       gameOver = true;
       overlay.style.display = 'flex';
@@ -165,15 +170,10 @@ function update(dt) {
 
 function drawPipes() {
   for(let p of pipes){
-    // Chaminé inferior
-    ctx.fillStyle = "#B22222"; // tijolo vermelho
-    ctx.fillRect(p.x, p.top + pipeGap, pipeWidth, height-(p.top+pipeGap)-80);
-
-    // top "tijolos"
-    ctx.fillStyle = "#8B0000"; 
+    ctx.fillStyle = "#B22222";
+    ctx.fillRect(p.x, p.top + pipeGap, pipeWidth, height-(p.top+pipeGap));
+    ctx.fillStyle = "#8B0000";
     ctx.fillRect(p.x, p.top + pipeGap, pipeWidth, 10);
-
-    // Chaminé superior
     ctx.fillStyle = "#B22222";
     ctx.fillRect(p.x, 0, pipeWidth, p.top);
     ctx.fillStyle = "#8B0000";
@@ -182,21 +182,18 @@ function drawPipes() {
 }
 
 function draw() {
-  // background
-  ctx.fillStyle = "#7ec8f5";
-  ctx.fillRect(0,0,width,height);
-
-  // ground
-  ctx.fillStyle = "#7bb26a";
-  ctx.fillRect(0,height-80,width,80);
+  // desenhar apenas a imagem de fundo
+  if(bgImg.complete && bgImg.naturalWidth > 0){
+    ctx.drawImage(bgImg, 0, 0, width, height);
+  }
 
   drawPipes();
 
-  // player
+  // jogador
   ctx.save();
   ctx.translate(player.x,player.y);
   ctx.rotate(player.rotation);
-  if(santaImg.complete && santaImg.naturalWidth !== 0){
+  if(santaImg.complete && santaImg.naturalWidth > 0){
     ctx.drawImage(santaImg,-player.w/2,-player.h/2,player.w,player.h);
   } else {
     ctx.fillStyle = "red";
@@ -233,10 +230,6 @@ loop(performance.now());
 
 </body>
 </html>
-
-
-
-
 
 
 
