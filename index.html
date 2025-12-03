@@ -7,17 +7,16 @@
 <style>
   body {
     margin: 0;
-    background: linear-gradient(#7ec8f5, #bde6ff);
+    background: #000;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100;
+    height: 100vh;
     overflow: hidden;
     font-family: sans-serif;
   }
   canvas {
     display: block;
-    background: #7ec8f5;
   }
   #overlay {
     position: absolute;
@@ -27,7 +26,6 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    color: #fff;
     text-align: center;
     pointer-events: none;
   }
@@ -45,9 +43,10 @@
 <body>
 
 <canvas id="game"></canvas>
+
+<!-- Menu inicial com imagem -->
 <div id="overlay">
-  <h1>Flappy Connecta</h1>
-  <p>Toca no ecrã para jogar — O Pai Natal está à espera!</p>
+  <img id="menuImg" src="menu.png" style="width: 300px; margin-bottom: 20px;">
   <button id="startBtn">Começar</button>
 </div>
 
@@ -56,12 +55,21 @@ const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const overlay = document.getElementById('overlay');
 const startBtn = document.getElementById('startBtn');
+const menuImg = document.getElementById('menuImg');
 
 let width = 480;
 let height = 640;
 canvas.width = width;
 canvas.height = height;
 
+// imagens
+const bgImg = new Image();
+bgImg.src = "background.png";   // fundo durante o jogo
+
+const santaImg = new Image();
+santaImg.src = "santa.png";
+
+// jogo
 let player = {x: 100, y: height/2, w: 44, h: 44, vy:0, rotation:0};
 let pipes = [];
 let gravity = 0.70;
@@ -76,10 +84,6 @@ let best = Number(localStorage.getItem('flappy_connecta_best') || 0);
 let gameOver = false;
 let started = false;
 
-const santaImg = new Image();
-santaImg.src = 'santa.png'; // substitui por uma imagem PNG do Pai Natal
-
-
 function resetGame() {
   pipes = [];
   player.y = height/2;
@@ -88,10 +92,10 @@ function resetGame() {
   score = 0;
   gameOver = false;
   started = false;
+
   overlay.style.display = 'flex';
   overlay.innerHTML = `
-    <h1>Flappy Connecta</h1>
-    <p>Toque no ecrã para jogar — O Pai Natal está à espera!</p>
+    <img src="menu.png" style="width: 300px; margin-bottom: 20px;">
     <button id="startBtn">Começar</button>
   `;
   document.getElementById('startBtn').addEventListener('click', flap);
@@ -138,15 +142,19 @@ function update(dt) {
     if(!p.scored && p.x + pipeWidth < player.x){
       p.scored = true;
       score++;
-      if(score>best){ best = score; localStorage.setItem('flappy_connecta_best', best);}
+      if(score > best){
+        best = score;
+        localStorage.setItem('flappy_connecta_best', best);
+      }
     }
 
     if(p.x + pipeWidth < -20) pipes.splice(i,1);
 
-    // colisoes
+    // colisões
     const playerRect = {x: player.x - player.w/2, y: player.y - player.h/2, w: player.w, h: player.h};
     const pipeTopRect = {x: p.x, y:0, w:pipeWidth, h:p.top};
     const pipeBottomRect = {x:p.x, y:p.top+pipeGap, w:pipeWidth, h:height-(p.top+pipeGap)};
+
     if(rectsIntersect(playerRect, pipeTopRect) || rectsIntersect(playerRect, pipeBottomRect)){
       gameOver = true;
       overlay.style.display = 'flex';
@@ -165,15 +173,12 @@ function update(dt) {
 
 function drawPipes() {
   for(let p of pipes){
-    // Chaminé inferior
-    ctx.fillStyle = "#B22222"; // tijolo vermelho
+    ctx.fillStyle = "#B22222";
     ctx.fillRect(p.x, p.top + pipeGap, pipeWidth, height-(p.top+pipeGap)-80);
 
-    // top "tijolos"
-    ctx.fillStyle = "#8B0000"; 
+    ctx.fillStyle = "#8B0000";
     ctx.fillRect(p.x, p.top + pipeGap, pipeWidth, 10);
 
-    // Chaminé superior
     ctx.fillStyle = "#B22222";
     ctx.fillRect(p.x, 0, pipeWidth, p.top);
     ctx.fillStyle = "#8B0000";
@@ -182,27 +187,26 @@ function drawPipes() {
 }
 
 function draw() {
-  // background
-  ctx.fillStyle = "#7ec8f5";
-  ctx.fillRect(0,0,width,height);
+  // fundo com imagem
+  if(bgImg.complete){
+    ctx.drawImage(bgImg, 0, 0, width, height);
+  } else {
+    ctx.fillStyle = "#7ec8f5";
+    ctx.fillRect(0,0,width,height);
+  }
 
-  // ground
+  // chão
   ctx.fillStyle = "#7bb26a";
   ctx.fillRect(0,height-80,width,80);
 
   drawPipes();
 
-  // player
+  // player (Pai Natal)
   ctx.save();
   ctx.translate(player.x,player.y);
   ctx.rotate(player.rotation);
   if(santaImg.complete && santaImg.naturalWidth !== 0){
     ctx.drawImage(santaImg,-player.w/2,-player.h/2,player.w,player.h);
-  } else {
-    ctx.fillStyle = "red";
-    ctx.beginPath();
-    ctx.arc(0,0,player.w/2,0,Math.PI*2);
-    ctx.fill();
   }
   ctx.restore();
 
@@ -233,8 +237,6 @@ loop(performance.now());
 
 </body>
 </html>
-
-
 
 
 
